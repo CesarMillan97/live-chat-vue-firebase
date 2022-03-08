@@ -1,7 +1,7 @@
 <template>
   <div class="chat-window">
      <div v-if="error">{{ error }}</div>
-     <div v-if="documents" class="messages">
+     <div v-if="documents" class="messages" ref="messages">
         <div v-for="document in formattedDocuments" :key="document.id" class="single">
            <span class="created-at">{{ document.createdAt }}</span>
            <span class="name">{{ document.name }}</span>
@@ -14,7 +14,7 @@
 <script>
 import getCollection from '../composable/getCollection'
 import { formatDistanceToNow } from 'date-fns'
-import { computed } from '@vue/runtime-core'
+import { computed, onUpdated, ref, watchEffect } from '@vue/runtime-core'
 export default {
    setup(){
       const { documents, error } = getCollection('messages')
@@ -26,8 +26,14 @@ export default {
             })
          }
       })
+      //auto scroll to the newest messages
+      const messages = ref(null)
 
-      return { documents, error, formattedDocuments }
+      onUpdated(() =>{
+         messages.value.scrollTop = messages.value.scrollHeight
+      })
+
+      return { documents, error, formattedDocuments, messages }
    }
 }
 </script>
